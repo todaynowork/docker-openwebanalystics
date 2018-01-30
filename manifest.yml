@@ -3,4 +3,3 @@ applications:
 - name: openwebanalytics 
   memory: 256M 
   instances: 1
-  # buildpack: https://github.com/joshisa/cf-php-build-pack.git
