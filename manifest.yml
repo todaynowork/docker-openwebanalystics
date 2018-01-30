@@ -1,0 +1,6 @@
+applications:
+#use your own application name here
+- name: openwebanalytics 
+  memory: 256M 
+  instances: 1
+  buildpack: https://github.com/joshisa/cf-php-build-pack.git
