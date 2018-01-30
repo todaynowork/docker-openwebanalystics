@@ -3,3 +3,4 @@ applications:
 - name: openwebanalytics 
   memory: 256M 
   instances: 1
+  buildpack: https://github.com/cloudfoundry/php-buildpack.git
