@@ -1,69 +1,53 @@
 <?php
-/*
- * Copyright IBM Corp. 2016
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+
+//
+// Open Web Analytics - An Open Source Web Analytics Framework
+//
+// Copyright 2006 Peter Adams. All rights reserved.
+//
+// Licensed under GPL v2.0 http://www.gnu.org/copyleft/gpl.html
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// $Id$
+//
+
+require_once('owa_env.php');
+require_once(OWA_DIR.'owa_php.php');
+
+/**
+ * Main Admin Page Wrapper Script
+ * 
+ * @author      Peter Adams <peter@openwebanalytics.com>
+ * @copyright   Copyright &copy; 2006 Peter Adams <peter@openwebanalytics.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GPL v2.0
+ * @category    owa
+ * @package     owa
+ * @version		$Revision$	      
+ * @since		owa 1.0.0
  */
 
- /**
-  * This PHP file uses the Slim Framework to construct a REST API.
-  * See Cloudant.php for the database functionality
-  */
-require 'vendor/autoload.php';
-require_once('./Cloudant.php');
-$app = new \Slim\Slim();
-$dotenv = new Dotenv\Dotenv(__DIR__);
-try {
-  $dotenv->load();
-} catch (Exception $e) {
-    error_log("No .env file found");
- }
-$app->get('/', function () {
-  global $app;
-    $app->render('index.html');
-});
+// Initialize owa admin
+$owa = new owa_php;
 
-$app->get('/api/visitors', function () {
-  global $app;
-  $app->contentType('application/json');
-  $visitors = array();
-  if(Cloudant::Instance()->isConnected()) {
-    $visitors = Cloudant::Instance()->get();
-  }
-  echo json_encode($visitors);
-});
 
-$app->post('/api/visitors', function() {
-	global $app;
-  $visitor = json_decode($app->request()->getBody(), true);
-  if(Cloudant::Instance()->isConnected()) {
-    Cloudant::Instance()->post($visitor);
-    echo sprintf("Hello %s, I've added you to the database!", $visitor['name']);
-  } else {
-    echo sprintf("Hello %s!", $visitor['name']);
-  }
-});
+if (!$owa->isOwaInstalled()) {
+	// redirect to install
+	owa_lib::redirectBrowser(owa_coreAPI::getSetting('base','public_url').'install.php');
+}
 
-$app->delete('/api/visitors/:id', function($id) {
-	global $app;
-	Cloudant::Instance()->delete($id);
-    $app->response()->status(204);
-});
+if ( $owa->isEndpointEnabled( basename( __FILE__ ) ) ) {
 
-$app->put('/api/visitors/:id', function($id) {
-	global $app;
-	$visitor = json_decode($app->request()->getBody(), true);
-    echo json_encode(Cloudant::Instance()->put($id, $visitor));
-});
+	// run controller or view and echo page content
+	echo $owa->handleRequestFromURL();
+} else {
+	
+	// unload owa
+	$owa->restInPeace();
+}
 
-$app->run();
+?>
